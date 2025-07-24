@@ -1,0 +1,28 @@
+{
+  "name": "email-agent-mcp",
+  "version": "1.0.0",
+  "description": "Email Management Agent MCP Server",
+  "capabilities": {
+    "tools": [
+      "email_analyze",
+      "email_search", 
+      "email_compose",
+      "email_schedule",
+      "email_insights"
+    ],
+    "resources": [
+      "email_templates",
+      "contact_list",
+      "email_analytics"
+    ]
+  },
+  "transport": {
+    "type": "websocket",
+    "port": 8080,
+    "host": "localhost"
+  },
+  "logging": {
+    "level": "info",
+    "file": "./logs/mcp-server.log"
+  }
+}

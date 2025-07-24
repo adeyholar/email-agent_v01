@@ -1,0 +1,70 @@
+{
+  "tools": {
+    "email_analyze": {
+      "description": "Analyze email content for sentiment, priority, and action items",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "emailContent": {
+            "type": "string",
+            "description": "The email content to analyze"
+          },
+          "analysisType": {
+            "type": "string",
+            "enum": ["sentiment", "priority", "action_items", "all"],
+            "description": "Type of analysis to perform"
+          }
+        },
+        "required": ["emailContent"]
+      }
+    },
+    "email_search": {
+      "description": "Search emails using various criteria",
+      "inputSchema": {
+        "type": "object", 
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query"
+          },
+          "timeRange": {
+            "type": "string",
+            "enum": ["today", "week", "month", "year"],
+            "description": "Time range for search"
+          },
+          "sender": {
+            "type": "string",
+            "description": "Filter by sender email"
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    "email_compose": {
+      "description": "Compose email with AI assistance",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Recipient email address"
+          },
+          "subject": {
+            "type": "string", 
+            "description": "Email subject"
+          },
+          "context": {
+            "type": "string",
+            "description": "Context for email composition"
+          },
+          "tone": {
+            "type": "string",
+            "enum": ["professional", "casual", "friendly", "formal"],
+            "description": "Desired tone"
+          }
+        },
+        "required": ["to", "context"]
+      }
+    }
+  }
+}

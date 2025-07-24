@@ -1,0 +1,76 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables (CRITICAL - Contains OAuth secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OAuth tokens and credentials (NEVER commit these)
+**/tokens/
+**/*token*
+**/*refresh*
+**/*secret*
+oauth-results.json
+auth-codes.txt
+
+# Build outputs
+dist/
+dist-ssr/
+*.local
+build/
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+Thumbs.db
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output/
+
+# Temporary folders
+tmp/
+temp/
+
+# MCP specific
+mcp-server/logs/
+*.mcp.log
+
+# Email cache (if any)
+email-cache/
+*.eml
+
+# Test artifacts
+test-results/
+screenshots/

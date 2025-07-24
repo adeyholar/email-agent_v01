@@ -1,0 +1,26 @@
+{
+  "testAccounts": {
+    "gmail": {
+      "testEmail": "test@gmail.com",
+      "mockResponses": true,
+      "rateLimitBypass": true
+    },
+    "outlook": {
+      "testEmail": "test@outlook.com", 
+      "mockResponses": true,
+      "rateLimitBypass": true
+    }
+  },
+  "mockData": {
+    "sampleEmails": [
+      {
+        "id": "mock-001",
+        "subject": "Test Email Subject",
+        "from": "sender@example.com",
+        "to": "recipient@example.com",
+        "body": "This is a test email body",
+        "date": "2025-07-23T10:00:00Z"
+      }
+    ]
+  }
+}

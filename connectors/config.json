@@ -1,0 +1,32 @@
+{
+  "gmail": {
+    "apiVersion": "v1",
+    "scopes": [
+      "https://www.googleapis.com/auth/gmail.readonly",
+      "https://www.googleapis.com/auth/gmail.send", 
+      "https://www.googleapis.com/auth/gmail.compose",
+      "https://www.googleapis.com/auth/gmail.modify"
+    ],
+    "rateLimits": {
+      "requestsPerSecond": 10,
+      "requestsPerDay": 1000000,
+      "batchSize": 100
+    },
+    "caching": {
+      "enabled": true,
+      "ttl": 300,
+      "maxSize": 1000
+    }
+  },
+  "outlook": {
+    "apiVersion": "v1.0",
+    "scopes": [
+      "https://graph.microsoft.com/Mail.Read",
+      "https://graph.microsoft.com/Mail.Send"
+    ],
+    "rateLimits": {
+      "requestsPerSecond": 5,
+      "requestsPerDay": 100000
+    }
+  }
+}
