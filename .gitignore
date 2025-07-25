@@ -1,3 +1,40 @@
+# File: D:\AI\Gits\email-agent_v01\.gitignore
+# Comprehensive .gitignore for Multi-Provider Email Dashboard
+
+# ========================================
+# SENSITIVE FILES - NEVER COMMIT
+# ========================================
+
+# Environment variables with credentials
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OAuth tokens and app passwords
+*token*.json
+*credential*.json
+*auth*.json
+gmail-tokens-backup.json
+gmail-profile.json
+yahoo-tokens.json
+aol-tokens.json
+
+# Email configuration files with passwords
+*-config.json
+*-imap-config.json
+email-config.json
+
+# Any backup files containing credentials
+*.backup
+*.bak
+*.orig
+
+# ========================================
+# NODE.JS & NPM
+# ========================================
+
 # Dependencies
 node_modules/
 npm-debug.log*
@@ -6,48 +43,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Environment variables (CRITICAL - Contains OAuth secrets)
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# OAuth tokens and credentials (NEVER commit these)
-**/tokens/
-**/*token*
-**/*refresh*
-**/*secret*
-oauth-results.json
-auth-codes.txt
-
-# Build outputs
-dist/
-dist-ssr/
-*.local
-build/
-
-# Editor directories and files
-.vscode/
-!.vscode/extensions.json
-.idea/
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# OS generated files
-Thumbs.db
-.DS_Store
-
-# Logs
-logs/
-*.log
+# Package manager lock files (keep pnpm-lock.yaml)
+package-lock.json
+yarn.lock
 
 # Runtime data
-pids/
+pids
 *.pid
 *.seed
 *.pid.lock
@@ -57,20 +58,336 @@ coverage/
 *.lcov
 
 # nyc test coverage
-.nyc_output/
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# Snowpack dependency directory
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Vite build output
+dist/
+dist-ssr/
+
+# Rollup.js default build output
+dist/
+
+# Uncomment the public line below if your project uses Gatsby
+# https://nextjs.org/blog/next-9-1#public-directory-support
+# public
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static
 
 # Temporary folders
 tmp/
 temp/
 
-# MCP specific
-mcp-server/logs/
-*.mcp.log
+# ========================================
+# DEVELOPMENT & BUILD TOOLS
+# ========================================
 
-# Email cache (if any)
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+build/
+dist/
+out/
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Desktop.ini
+
+# Linux
+*~
+
+# ========================================
+# EMAIL-SPECIFIC IGNORES
+# ========================================
+
+# Email data caches
 email-cache/
 *.eml
+*.msg
 
-# Test artifacts
+# IMAP connection logs
+imap-logs/
+connection-logs/
+
+# Email analysis results
+analysis-results/
+email-insights/
+
+# Temporary email storage
+temp-emails/
+email-temp/
+
+# Provider-specific config backups
+gmail-backup/
+yahoo-backup/
+aol-backup/
+
+# Authentication debug files
+auth-debug/
+oauth-debug/
+
+# ========================================
+# MCP & CLAUDE INTEGRATION
+# ========================================
+
+# Claude Desktop configuration (keep template)
+claude_desktop_config.json
+
+# MCP server logs
+mcp-logs/
+*.mcp.log
+
+# Claude session data
+claude-sessions/
+mcp-sessions/
+
+# ========================================
+# TEST & VERIFICATION FILES
+# ========================================
+
+# Test outputs
 test-results/
+test-outputs/
+verification-results/
+
+# Temporary test data
+test-data/
+mock-emails/
+
+# Performance benchmarks
+benchmarks/
+performance-logs/
+
+# ========================================
+# PRODUCTION & DEPLOYMENT
+# ========================================
+
+# Production builds
+prod/
+production/
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+
+# Kubernetes
+k8s/
+kubernetes/
+
+# Environment-specific configs
+config.production.js
+config.staging.js
+config.development.js
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# ========================================
+# DOCUMENTATION & ASSETS
+# ========================================
+
+# Generated documentation
+docs/build/
+docs/_build/
+
+# Screenshots and media (except examples)
 screenshots/
+demo-videos/
+*.mov
+*.mp4
+*.avi
+
+# Design files
+*.psd
+*.ai
+*.sketch
+
+# ========================================
+# MONITORING & ANALYTICS
+# ========================================
+
+# Application logs
+app-logs/
+server-logs/
+error-logs/
+
+# Performance monitoring
+performance/
+metrics/
+
+# Analytics data
+analytics/
+usage-stats/
+
+# ========================================
+# ALLOW CERTAIN FILES
+# ========================================
+
+# Keep example files
+!.env.example
+!config.example.js
+!*.example.*
+
+# Keep documentation
+!README.md
+!CHANGELOG.md
+!LICENSE
+!CONTRIBUTING.md
+
+# Keep workflow files
+!.github/
+!.github/workflows/
+
+# Keep essential config files
+!package.json
+!pnpm-lock.yaml
+!tsconfig.json
+!vite.config.ts
+!tailwind.config.js
+
+# ========================================
+# PROJECT-SPECIFIC EXCEPTIONS
+# ========================================
+
+# Keep working scripts (these are safe)
+!working-aol-fix.js
+!verify-aol-integration.js
+!troubleshoot-aol.js
+
+# Keep MCP server files
+!mcp-server/mcpServer.js
+!mcp-server/config.json
+!mcp-server/tools-schema.json
+
+# Keep frontend source
+!src/
+!src/**/*
+
+# Keep integration files (no credentials)
+!connectors/
+!connectors/**/*
+
+# ========================================
+# FINAL SAFETY CHECKS
+# ========================================
+
+# Absolutely never commit these patterns
+*password*
+*secret*
+*key*
+*token*
+*credential*
+*auth*
+
+# Exception: allow files with these words in safe contexts
+!*password-reset.md
+!*secret-management.md
+!*token-guide.md
+
+# Double-check: email addresses in config files
+*@gmail.com
+*@yahoo.com
+*@aol.com
+
+# Exception: allow in documentation and examples
+!*.md:*@gmail.com
+!*.example.*:*@gmail.com
+!README.md
+!docs/**/*.md

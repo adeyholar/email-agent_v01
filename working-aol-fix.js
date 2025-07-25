@@ -1,4 +1,28 @@
-// File: D:\AI\Gits\email-agent_v01\enhanced-working-api-server.js
+// File: D:\AI\Gits\email-agent_v01\working-aol-fix.js
+// Working AOL Integration Fix Script - No Syntax Errors
+
+import fs from 'fs';
+import path from 'path';
+
+const SERVER_FILE = 'enhanced-working-api-server.js';
+
+console.log('🔧 AOL Integration Fix Script');
+console.log('============================');
+
+function createBackup() {
+    if (fs.existsSync(SERVER_FILE)) {
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+        const backupName = `${SERVER_FILE}.backup-${timestamp}`;
+        fs.copyFileSync(SERVER_FILE, backupName);
+        console.log(`✅ Backup created: ${backupName}`);
+        return true;
+    }
+    console.log('⚠️ Original file not found');
+    return false;
+}
+
+function generateFixedServerCode() {
+    return `// File: D:\\AI\\Gits\\email-agent_v01\\enhanced-working-api-server.js
 // Enhanced Working API Server with Gmail + Yahoo + AOL Integration
 // Fixed syntax errors and properly integrated AOL
 
@@ -29,16 +53,16 @@ class AOLEmailManager {
             }
         ].filter(account => account.email && account.password);
         
-        console.log(`📧 AOL Manager initialized with ${this.accounts.length} account(s)`);
+        console.log(\`📧 AOL Manager initialized with \${this.accounts.length} account(s)\`);
     }
 
     async getAllAccountsStats() {
         const stats = [];
-        console.log(`   🔄 Processing ${this.accounts.length} AOL accounts...`);
+        console.log(\`   🔄 Processing \${this.accounts.length} AOL accounts...\`);
         
         for (const account of this.accounts) {
             try {
-                console.log(`   📧 Connecting to AOL: ${account.email}`);
+                console.log(\`   📧 Connecting to AOL: \${account.email}\`);
                 
                 const client = new ImapFlow({
                     host: 'imap.aol.com',
@@ -61,12 +85,12 @@ class AOLEmailManager {
                         unreadMessages: status.unseen || 0,
                         provider: 'aol'
                     });
-                    console.log(`   ✅ AOL ${account.email}: ${status.messages} total, ${status.unseen} unread`);
+                    console.log(\`   ✅ AOL \${account.email}: \${status.messages} total, \${status.unseen} unread\`);
                 } finally {
                     await client.logout();
                 }
             } catch (error) {
-                console.error(`   ❌ Error getting AOL stats for ${account.email}:`, error.message);
+                console.error(\`   ❌ Error getting AOL stats for \${account.email}:\`, error.message);
                 stats.push({
                     email: account.email,
                     error: error.message,
@@ -79,7 +103,7 @@ class AOLEmailManager {
 
     async getRecentEmails(email, limit = 20) {
         const account = this.accounts.find(a => a.email === email);
-        if (!account) throw new Error(`AOL account ${email} not found`);
+        if (!account) throw new Error(\`AOL account \${email} not found\`);
 
         const client = new ImapFlow({
             host: 'imap.aol.com',
@@ -103,7 +127,7 @@ class AOLEmailManager {
             if (totalMessages > 0) {
                 const startSeq = Math.max(1, totalMessages - limit + 1);
                 
-                for await (let message of client.fetch(`${startSeq}:*`, {
+                for await (let message of client.fetch(\`\${startSeq}:*\`, {
                     envelope: true,
                     flags: true
                 })) {
@@ -112,7 +136,7 @@ class AOLEmailManager {
                         subject: message.envelope.subject || '(No Subject)',
                         from: message.envelope.from?.[0]?.address || 'Unknown',
                         date: message.envelope.date,
-                        unread: !message.flags.has('\\Seen'),
+                        unread: !message.flags.has('\\\\Seen'),
                         provider: 'aol',
                         account: email
                     });
@@ -128,7 +152,7 @@ class AOLEmailManager {
 
     async searchEmails(email, query, limit = 20) {
         const account = this.accounts.find(a => a.email === email);
-        if (!account) throw new Error(`AOL account ${email} not found`);
+        if (!account) throw new Error(\`AOL account \${email} not found\`);
 
         const client = new ImapFlow({
             host: 'imap.aol.com',
@@ -159,7 +183,7 @@ class AOLEmailManager {
                         subject: message.envelope.subject || '(No Subject)',
                         from: message.envelope.from?.[0]?.address || 'Unknown',
                         date: message.envelope.date,
-                        unread: !message.flags.has('\\Seen'),
+                        unread: !message.flags.has('\\\\Seen'),
                         provider: 'aol',
                         account: email
                     });
@@ -201,9 +225,9 @@ const aolManager = new AOLEmailManager();
 
 console.log('🚀 Enhanced Email API Server Starting...');
 console.log('==========================================');
-console.log(`📧 Gmail: ${process.env.GMAIL_EMAIL || 'Not configured'}`);
-console.log(`📧 Yahoo: ${yahooManager.accounts.length} account(s) configured`);
-console.log(`📧 AOL: ${aolManager.accounts.length} account(s) configured`);
+console.log(\`📧 Gmail: \${process.env.GMAIL_EMAIL || 'Not configured'}\`);
+console.log(\`📧 Yahoo: \${yahooManager.accounts.length} account(s) configured\`);
+console.log(\`📧 AOL: \${aolManager.accounts.length} account(s) configured\`);
 console.log();
 
 // Health check endpoint
@@ -245,7 +269,7 @@ app.get('/api/stats', async (req, res) => {
 
             const oneWeekAgo = new Date();
             oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            const weekQuery = `after:${oneWeekAgo.getFullYear()}/${(oneWeekAgo.getMonth() + 1).toString().padStart(2, '0')}/${oneWeekAgo.getDate().toString().padStart(2, '0')}`;
+            const weekQuery = \`after:\${oneWeekAgo.getFullYear()}/\${(oneWeekAgo.getMonth() + 1).toString().padStart(2, '0')}/\${oneWeekAgo.getDate().toString().padStart(2, '0')}\`;
             
             const thisWeekMessages = await gmail.users.messages.list({
                 userId: 'me',
@@ -292,7 +316,7 @@ app.get('/api/stats', async (req, res) => {
                 }
             });
 
-            console.log(`   ✅ Yahoo stats retrieved (${yahooStats.length} accounts)`);
+            console.log(\`   ✅ Yahoo stats retrieved (\${yahooStats.length} accounts)\`);
         } catch (error) {
             console.error('   ❌ Yahoo stats error:', error.message);
             stats.providers.yahoo = { error: error.message, status: 'error' };
@@ -317,7 +341,7 @@ app.get('/api/stats', async (req, res) => {
                 }
             });
 
-            console.log(`   ✅ AOL stats retrieved (${aolStats.length} accounts)`);
+            console.log(\`   ✅ AOL stats retrieved (\${aolStats.length} accounts)\`);
         } catch (error) {
             console.error('   ❌ AOL stats error:', error.message);
             stats.providers.aol = { error: error.message, status: 'error' };
@@ -367,7 +391,7 @@ app.get('/api/emails/recent', async (req, res) => {
                 const daysAgo = timeRange === 'today' ? 1 : timeRange === 'week' ? 7 : 30;
                 const date = new Date();
                 date.setDate(date.getDate() - daysAgo);
-                query += ` after:${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+                query += \` after:\${date.getFullYear()}/\${(date.getMonth() + 1).toString().padStart(2, '0')}/\${date.getDate().toString().padStart(2, '0')}\`;
             }
 
             const messagesList = await gmail.users.messages.list({
@@ -410,7 +434,7 @@ app.get('/api/emails/recent', async (req, res) => {
                 );
 
                 allEmails.push(...gmailEmails.filter(email => email !== null));
-                console.log(`   ✅ Fetched ${gmailEmails.filter(e => e).length} Gmail emails`);
+                console.log(\`   ✅ Fetched \${gmailEmails.filter(e => e).length} Gmail emails\`);
             }
         } catch (error) {
             console.error('   ❌ Gmail recent emails error:', error.message);
@@ -424,9 +448,9 @@ app.get('/api/emails/recent', async (req, res) => {
                 try {
                     const yahooEmails = await yahooManager.getRecentEmails(account.email, 5);
                     allEmails.push(...yahooEmails);
-                    console.log(`   ✅ Fetched ${yahooEmails.length} emails from ${account.email}`);
+                    console.log(\`   ✅ Fetched \${yahooEmails.length} emails from \${account.email}\`);
                 } catch (error) {
-                    console.error(`   ⚠️ Error fetching emails from ${account.email}:`, error.message);
+                    console.error(\`   ⚠️ Error fetching emails from \${account.email}:\`, error.message);
                 }
             }
         } catch (error) {
@@ -441,9 +465,9 @@ app.get('/api/emails/recent', async (req, res) => {
                 try {
                     const aolEmails = await aolManager.getRecentEmails(account.email, 5);
                     allEmails.push(...aolEmails);
-                    console.log(`   ✅ Fetched ${aolEmails.length} emails from ${account.email}`);
+                    console.log(\`   ✅ Fetched \${aolEmails.length} emails from \${account.email}\`);
                 } catch (error) {
-                    console.error(`   ⚠️ Error fetching emails from ${account.email}:`, error.message);
+                    console.error(\`   ⚠️ Error fetching emails from \${account.email}:\`, error.message);
                 }
             }
         } catch (error) {
@@ -455,7 +479,7 @@ app.get('/api/emails/recent', async (req, res) => {
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, limit);
 
-        console.log(`✅ Total recent emails fetched: ${sortedEmails.length} from all providers`);
+        console.log(\`✅ Total recent emails fetched: \${sortedEmails.length} from all providers\`);
         res.json(sortedEmails);
 
     } catch (error) {
@@ -473,7 +497,7 @@ app.get('/api/emails/search', async (req, res) => {
         const query = req.query.q || '';
         const limit = parseInt(req.query.limit) || 20;
         
-        console.log(`🔍 Searching emails across all providers with query: "${query}"`);
+        console.log(\`🔍 Searching emails across all providers with query: "\${query}"\`);
 
         if (!query.trim()) {
             return res.json([]);
@@ -519,7 +543,7 @@ app.get('/api/emails/search', async (req, res) => {
                 );
 
                 allResults.push(...gmailEmails.filter(email => email !== null));
-                console.log(`   ✅ Found ${gmailEmails.filter(e => e).length} Gmail results`);
+                console.log(\`   ✅ Found \${gmailEmails.filter(e => e).length} Gmail results\`);
             }
         } catch (error) {
             console.error('   ❌ Gmail search error:', error.message);
@@ -533,9 +557,9 @@ app.get('/api/emails/search', async (req, res) => {
                 try {
                     const yahooResults = await yahooManager.searchEmails(account.email, query, 5);
                     allResults.push(...yahooResults);
-                    console.log(`   ✅ Found ${yahooResults.length} results in ${account.email}`);
+                    console.log(\`   ✅ Found \${yahooResults.length} results in \${account.email}\`);
                 } catch (error) {
-                    console.error(`   ⚠️ Error searching ${account.email}:`, error.message);
+                    console.error(\`   ⚠️ Error searching \${account.email}:\`, error.message);
                 }
             }
         } catch (error) {
@@ -550,9 +574,9 @@ app.get('/api/emails/search', async (req, res) => {
                 try {
                     const aolResults = await aolManager.searchEmails(account.email, query, 5);
                     allResults.push(...aolResults);
-                    console.log(`   ✅ Found ${aolResults.length} results in ${account.email}`);
+                    console.log(\`   ✅ Found \${aolResults.length} results in \${account.email}\`);
                 } catch (error) {
-                    console.error(`   ⚠️ Error searching ${account.email}:`, error.message);
+                    console.error(\`   ⚠️ Error searching \${account.email}:\`, error.message);
                 }
             }
         } catch (error) {
@@ -564,7 +588,7 @@ app.get('/api/emails/search', async (req, res) => {
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, limit);
 
-        console.log(`✅ Total search results: ${sortedResults.length} from all providers`);
+        console.log(\`✅ Total search results: \${sortedResults.length} from all providers\`);
         res.json(sortedResults);
 
     } catch (error) {
@@ -621,11 +645,11 @@ app.get('/api/providers/aol', async (req, res) => {
 // Start server
 app.listen(PORT, () => {
     console.log('✅ Enhanced Email API Server started successfully!');
-    console.log(`📡 Server running on: http://localhost:${PORT}`);
-    console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
-    console.log(`📊 Enhanced stats: http://localhost:${PORT}/api/stats`);
-    console.log(`📧 Multi-provider recent: http://localhost:${PORT}/api/emails/recent`);
-    console.log(`🔍 Multi-provider search: http://localhost:${PORT}/api/emails/search?q=query`);
+    console.log(\`📡 Server running on: http://localhost:\${PORT}\`);
+    console.log(\`🔗 Health check: http://localhost:\${PORT}/api/health\`);
+    console.log(\`📊 Enhanced stats: http://localhost:\${PORT}/api/stats\`);
+    console.log(\`📧 Multi-provider recent: http://localhost:\${PORT}/api/emails/recent\`);
+    console.log(\`🔍 Multi-provider search: http://localhost:\${PORT}/api/emails/search?q=query\`);
     console.log();
     console.log('🎯 Multi-Provider Dashboard Ready!');
     console.log('📧 Gmail ✅ | Yahoo ✅ | AOL ✅');
@@ -643,4 +667,49 @@ process.on('uncaughtException', (error) => {
 
 process.on('unhandledRejection', (error) => {
     console.error('❌ Unhandled rejection:', error);
-});
+});`;
+}
+
+function executeFix() {
+    try {
+        console.log('🚀 Starting AOL integration fix...');
+        
+        // Create backup
+        createBackup();
+        
+        // Write corrected code
+        console.log('📝 Writing corrected server code...');
+        const correctedCode = generateFixedServerCode();
+        fs.writeFileSync(SERVER_FILE, correctedCode, 'utf8');
+        console.log('✅ Corrected server code written');
+        
+        console.log();
+        console.log('🎉 AOL Integration Fix Complete!');
+        console.log('================================');
+        console.log('✅ Syntax errors fixed');
+        console.log('✅ AOL manager class integrated');
+        console.log('✅ All endpoints updated to include AOL');
+        console.log('✅ Error handling improved');
+        console.log();
+        console.log('📋 Next Steps:');
+        console.log('1. Test the server: node enhanced-working-api-server.js');
+        console.log('2. Verify AOL accounts appear in console output');
+        console.log('3. Check dashboard shows all 3 providers');
+        console.log('4. Configure AOL credentials in .env if needed:');
+        console.log('   AOL_EMAIL=your-email@aol.com');
+        console.log('   AOL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx');
+        
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Fix execution failed:', error.message);
+        return false;
+    }
+}
+
+// Execute the fix
+if (executeFix()) {
+    console.log('\n🎯 Ready to test! Run: node enhanced-working-api-server.js');
+} else {
+    console.log('\n❌ Fix failed. Check error messages above.');
+}
