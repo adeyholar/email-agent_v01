@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.16.0",
+    "@modelcontextprotocol/sdk": "^1.17.0",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -10,16 +10,16 @@
     "imap": "^0.8.19",
     "imapflow": "^1.0.191",
     "lucide-react": "^0.525.0",
-    "mailparser": "^3.6.0",
-    "microsoft-graph": "^3.0.0",
+    "mailparser": "^3.7.4",
+    "microsoft-graph": "^3.11.16",
     "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2",
-    "nodemailer": "^6.9.0",
-    "rate-limiter-flexible": "^3.0.0",
+    "nodemailer": "^6.10.1",
+    "rate-limiter-flexible": "^3.0.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.7.0",
-    "sanitize-html": "^2.11.0",
+    "react-router-dom": "^7.7.1",
+    "sanitize-html": "^2.17.0",
     "ws": "^8.18.3"
   },
   "description": "Email Management Agent with Claude Desktop MCP Integration",
@@ -40,8 +40,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^20.19.9",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.0",
@@ -49,6 +49,6 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3",
-    "vite": "^7.0.5"
+    "vite": "^7.0.6"
   }
 }

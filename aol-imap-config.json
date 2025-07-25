@@ -1,0 +1,48 @@
+{
+  "provider": "AOL IMAP",
+  "accounts": [
+    {
+      "name": "AOL Account 1",
+      "email": "adeyholar@aol.com",
+      "envPrefix": "AOL",
+      "imap": {
+        "host": "imap.aol.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "adeyholar@aol.com",
+          "pass": "process.env.AOL_APP_PASSWORD"
+        }
+      }
+    },
+    {
+      "name": "AOL Account 2",
+      "email": "jcdisn@aol.com",
+      "envPrefix": "AOL2",
+      "imap": {
+        "host": "imap.aol.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jcdisn@aol.com",
+          "pass": "process.env.AOL2_APP_PASSWORD"
+        }
+      }
+    },
+    {
+      "name": "AOL Account 3",
+      "email": "jccf2024@aol.com",
+      "envPrefix": "AOL3",
+      "imap": {
+        "host": "imap.aol.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jccf2024@aol.com",
+          "pass": "process.env.AOL3_APP_PASSWORD"
+        }
+      }
+    }
+  ],
+  "timestamp": "2025-07-24T23:59:01.656Z"
+}

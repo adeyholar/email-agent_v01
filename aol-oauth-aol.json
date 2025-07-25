@@ -1,0 +1,6 @@
+{
+  "account": "AOL Account 1",
+  "email": "adeyholar@aol.com",
+  "oauth_url": "https://api.login.aol.com/oauth2/request_auth?client_id=your_aol_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Faol%2Fcallback&response_type=code&scope=mail-r+mail-w+openid+profile&access_type=offline&prompt=consent&state=aol_oauth_0_1753400483067",
+  "timestamp": "2025-07-24T23:41:23.067Z"
+}

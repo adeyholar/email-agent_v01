@@ -1,0 +1,11 @@
+{
+  "provider": "Gmail",
+  "oauth_url": "https://accounts.google.com/o/oauth2/auth?client_id=113924739250-a5fto1me2fvhrt20k2j1p6evt5nigb0l.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fgmail%2Fcallback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.send+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&prompt=consent&state=gmail_oauth_1753384235072",
+  "redirect_uri": "http://localhost:8080/auth/gmail/callback",
+  "scopes": [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ],
+  "timestamp": "2025-07-24T19:10:35.073Z"
+}

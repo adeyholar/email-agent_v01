@@ -1,0 +1,30 @@
+{
+  "yahoo_issue": "Mail API not available in Yahoo app permissions",
+  "recommendations": [
+    {
+      "option": "A",
+      "name": "Yahoo IMAP Setup",
+      "description": "Use IMAP with app password for reliable email access",
+      "next_script": "yahoo-imap-setup.js"
+    },
+    {
+      "option": "B",
+      "name": "Gmail OAuth First",
+      "description": "Set up Gmail OAuth which has full Mail API access",
+      "next_script": "gmail-oauth-setup.js"
+    },
+    {
+      "option": "C",
+      "name": "Basic Yahoo OAuth Test",
+      "description": "Test OAuth flow with profile access only",
+      "next_script": "yahoo-profile-oauth.js"
+    }
+  ],
+  "yahoo_imap_settings": {
+    "server": "imap.mail.yahoo.com",
+    "port": 993,
+    "security": "SSL/TLS",
+    "auth_method": "App Password recommended"
+  },
+  "timestamp": "2025-07-24T18:26:17.646Z"
+}

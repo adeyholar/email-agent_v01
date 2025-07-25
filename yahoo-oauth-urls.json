@@ -1,0 +1,5 @@
+{
+  "full_scope": "https://api.login.yahoo.com/oauth2/request_auth?client_id=dj0yJmk9QTFPY3FoSG1YTUpCJmQ9WVdrOU5HTktRMDlDY0V3bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTJi&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fauth%2Fyahoo%2Fcallback&response_type=code&scope=mail-r+mail-w+openid+profile&state=yahoo_oauth_1753380185241",
+  "minimal_scope": "https://api.login.yahoo.com/oauth2/request_auth?client_id=dj0yJmk9QTFPY3FoSG1YTUpCJmQ9WVdrOU5HTktRMDlDY0V3bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTJi&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fauth%2Fyahoo%2Fcallback&response_type=code&scope=mail-r+openid&state=yahoo_oauth_1753380185241",
+  "timestamp": "2025-07-24T18:03:05.243Z"
+}

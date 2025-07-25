@@ -4,7 +4,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import EmailDashboard from './components/emailDashboard.jsx'
+import EmailDashboard from './components/ScalableDashboard.jsx'
 import './index.css'
 
 // Error Boundary Component
