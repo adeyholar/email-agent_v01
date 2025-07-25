@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0",
+    "nodemailer": "^6.9.8",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -25,6 +26,8 @@
   "description": "Email Management Agent with Claude Desktop MCP Integration",
   "main": "src/index.js",
   "scripts": {
+    "gmail-oauth": "node gmail-oauth-fix.js",
+    "test-ai": "node test-ai-features.js",
     "preview": "vite preview",
     "test": "vitest",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",

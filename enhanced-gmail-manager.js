@@ -1,0 +1,505 @@
+// File: D:\AI\Gits\email-agent_v01\enhanced-gmail-manager.js
+// Enhanced Gmail Manager with Fixed API, Delete Support, and Email Composition
+// Replaces broken Gmail functionality in main server
+
+import { google } from 'googleapis';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+class EnhancedGmailManager {
+    constructor() {
+        this.oauth2Client = new google.auth.OAuth2(
+            process.env.GMAIL_CLIENT_ID,
+            process.env.GMAIL_CLIENT_SECRET,
+            'http://localhost:8080/auth/gmail/callback'
+        );
+
+        // Set credentials if refresh token available
+        if (process.env.GMAIL_REFRESH_TOKEN) {
+            this.oauth2Client.setCredentials({
+                refresh_token: process.env.GMAIL_REFRESH_TOKEN
+            });
+        }
+
+        this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
+        this.email = process.env.GMAIL_EMAIL;
+    }
+
+    async refreshTokenIfNeeded() {
+        try {
+            const { credentials } = await this.oauth2Client.refreshAccessToken();
+            this.oauth2Client.setCredentials(credentials);
+            return true;
+        } catch (error) {
+            console.error('❌ Gmail token refresh failed:', error.message);
+            throw new Error('Gmail authentication expired. Please re-authorize.');
+        }
+    }
+
+    async getProfile() {
+        try {
+            await this.refreshTokenIfNeeded();
+            const profile = await this.gmail.users.getProfile({ userId: 'me' });
+            
+            return {
+                emailAddress: profile.data.emailAddress,
+                messagesTotal: profile.data.messagesTotal,
+                threadsTotal: profile.data.threadsTotal,
+                historyId: profile.data.historyId
+            };
+        } catch (error) {
+            console.error('❌ Gmail profile fetch failed:', error.message);
+            throw error;
+        }
+    }
+
+    async getStats() {
+        try {
+            await this.refreshTokenIfNeeded();
+            
+            console.log('   📧 Fetching Gmail stats...');
+            
+            // Get profile info
+            const profile = await this.gmail.users.getProfile({ userId: 'me' });
+            
+            // Get unread count
+            const unreadMessages = await this.gmail.users.messages.list({
+                userId: 'me',
+                q: 'is:unread in:inbox',
+                maxResults: 1
+            });
+
+            // Get this week's messages
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            const weekQuery = `after:${oneWeekAgo.getFullYear()}/${(oneWeekAgo.getMonth() + 1).toString().padStart(2, '0')}/${oneWeekAgo.getDate().toString().padStart(2, '0')}`;
+            
+            const thisWeekMessages = await this.gmail.users.messages.list({
+                userId: 'me',
+                q: weekQuery,
+                maxResults: 1
+            });
+
+            const stats = {
+                emailAddress: profile.data.emailAddress,
+                totalMessages: profile.data.messagesTotal,
+                unreadMessages: unreadMessages.data.resultSizeEstimate || 0,
+                totalThisWeek: thisWeekMessages.data.resultSizeEstimate || 0,
+                totalThreads: profile.data.threadsTotal,
+                provider: 'gmail',
+                status: 'connected'
+            };
+
+            console.log('   ✅ Gmail stats retrieved successfully');
+            return stats;
+
+        } catch (error) {
+            console.error('   ❌ Gmail stats error:', error.message);
+            throw error;
+        }
+    }
+
+    async getRecentEmails(limit = 20) {
+        try {
+            await this.refreshTokenIfNeeded();
+            
+            console.log('   📧 Fetching Gmail recent emails...');
+            
+            // Get recent messages with improved error handling
+            const messagesList = await this.gmail.users.messages.list({
+                userId: 'me',
+                q: 'in:inbox',
+                maxResults: Math.min(limit, 50) // Limit to prevent timeout
+            });
+
+            if (!messagesList.data.messages) {
+                console.log('   ℹ️ No Gmail messages found');
+                return [];
+            }
+
+            const emails = [];
+            const messagesToFetch = messagesList.data.messages.slice(0, limit);
+
+            // Fetch message details in batches to avoid rate limits
+            const batchSize = 5;
+            for (let i = 0; i < messagesToFetch.length; i += batchSize) {
+                const batch = messagesToFetch.slice(i, i + batchSize);
+                
+                const batchPromises = batch.map(async (message) => {
+                    try {
+                        const messageDetail = await this.gmail.users.messages.get({
+                            userId: 'me',
+                            id: message.id,
+                            format: 'metadata',
+                            metadataHeaders: ['From', 'Subject', 'Date', 'To']
+                        });
+
+                        const headers = messageDetail.data.payload.headers;
+                        const from = headers.find(h => h.name === 'From')?.value || 'Unknown';
+                        const subject = headers.find(h => h.name === 'Subject')?.value || 'No Subject';
+                        const date = headers.find(h => h.name === 'Date')?.value || new Date().toISOString();
+                        const to = headers.find(h => h.name === 'To')?.value || '';
+
+                        return {
+                            id: message.id,
+                            from: from,
+                            to: to,
+                            subject: subject,
+                            date: new Date(date),
+                            isUnread: messageDetail.data.labelIds?.includes('UNREAD') || false,
+                            snippet: messageDetail.data.snippet || '',
+                            provider: 'gmail',
+                            account: this.email,
+                            threadId: messageDetail.data.threadId,
+                            labelIds: messageDetail.data.labelIds || []
+                        };
+                    } catch (err) {
+                        console.warn(`   ⚠️ Error fetching Gmail message ${message.id}:`, err.message);
+                        return null;
+                    }
+                });
+
+                const batchResults = await Promise.allSettled(batchPromises);
+                const validEmails = batchResults
+                    .filter(result => result.status === 'fulfilled' && result.value !== null)
+                    .map(result => result.value);
+                
+                emails.push(...validEmails);
+                
+                // Small delay between batches to respect rate limits
+                if (i + batchSize < messagesToFetch.length) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+
+            console.log(`   ✅ Fetched ${emails.length} Gmail emails`);
+            return emails.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        } catch (error) {
+            console.error('   ❌ Gmail recent emails error:', error.message);
+            throw error;
+        }
+    }
+
+    async searchEmails(query, limit = 20) {
+        try {
+            await this.refreshTokenIfNeeded();
+            
+            console.log(`   🔍 Searching Gmail for: "${query}"`);
+
+            const searchResults = await this.gmail.users.messages.list({
+                userId: 'me',
+                q: query,
+                maxResults: Math.min(limit, 50)
+            });
+
+            if (!searchResults.data.messages) {
+                console.log('   ℹ️ No Gmail search results found');
+                return [];
+            }
+
+            const emails = [];
+            const messagesToFetch = searchResults.data.messages.slice(0, limit);
+
+            // Fetch in smaller batches for search results
+            const batchSize = 3;
+            for (let i = 0; i < messagesToFetch.length; i += batchSize) {
+                const batch = messagesToFetch.slice(i, i + batchSize);
+                
+                const batchPromises = batch.map(async (message) => {
+                    try {
+                        const messageDetail = await this.gmail.users.messages.get({
+                            userId: 'me',
+                            id: message.id,
+                            format: 'metadata',
+                            metadataHeaders: ['From', 'Subject', 'Date', 'To']
+                        });
+
+                        const headers = messageDetail.data.payload.headers;
+                        return {
+                            id: message.id,
+                            from: headers.find(h => h.name === 'From')?.value || 'Unknown',
+                            to: headers.find(h => h.name === 'To')?.value || '',
+                            subject: headers.find(h => h.name === 'Subject')?.value || 'No Subject',
+                            date: headers.find(h => h.name === 'Date')?.value || new Date().toISOString(),
+                            snippet: messageDetail.data.snippet || '',
+                            provider: 'gmail',
+                            account: this.email,
+                            threadId: messageDetail.data.threadId,
+                            labelIds: messageDetail.data.labelIds || []
+                        };
+                    } catch (err) {
+                        console.warn(`   ⚠️ Error fetching search result ${message.id}:`, err.message);
+                        return null;
+                    }
+                });
+
+                const batchResults = await Promise.allSettled(batchPromises);
+                const validEmails = batchResults
+                    .filter(result => result.status === 'fulfilled' && result.value !== null)
+                    .map(result => result.value);
+                
+                emails.push(...validEmails);
+                
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+
+            console.log(`   ✅ Found ${emails.length} Gmail search results`);
+            return emails.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        } catch (error) {
+            console.error('   ❌ Gmail search error:', error.message);
+            throw error;
+        }
+    }
+
+    // NEW: Enhanced delete functionality
+    async deleteEmails(messageIds) {
+        try {
+            await this.refreshTokenIfNeeded();
+            
+            console.log(`   🗑️ Deleting ${messageIds.length} Gmail messages...`);
+            
+            if (!Array.isArray(messageIds) || messageIds.length === 0) {
+                throw new Error('No message IDs provided for deletion');
+            }
+
+            let deletedCount = 0;
+            let failedCount = 0;
+            const errors = [];
+
+            // Delete in batches to avoid API limits
+            const batchSize = 10;
+            for (let i = 0; i < messageIds.length; i += batchSize) {
+                const batch = messageIds.slice(i, i + batchSize);
+                
+                const deletePromises = batch.map(async (messageId) => {
+                    try {
+                        await this.gmail.users.messages.delete({
+                            userId: 'me',
+                            id: messageId
+                        });
+                        return { success: true, id: messageId };
+                    } catch (error) {
+                        console.warn(`   ⚠️ Failed to delete Gmail message ${messageId}:`, error.message);
+                        return { success: false, id: messageId, error: error.message };
+                    }
+                });
+
+                const batchResults = await Promise.allSettled(deletePromises);
+                
+                batchResults.forEach(result => {
+                    if (result.status === 'fulfilled') {
+                        if (result.value.success) {
+                            deletedCount++;
+                        } else {
+                            failedCount++;
+                            errors.push(result.value.error);
+                        }
+                    } else {
+                        failedCount++;
+                        errors.push(result.reason.message);
+                    }
+                });
+
+                // Rate limiting delay between batches
+                if (i + batchSize < messageIds.length) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+            }
+
+            const result = {
+                success: deletedCount > 0,
+                deletedCount,
+                failedCount,
+                totalRequested: messageIds.length,
+                errors: errors.slice(0, 5) // Limit error details
+            };
+
+            console.log(`   ✅ Gmail deletion complete: ${deletedCount} deleted, ${failedCount} failed`);
+            return result;
+
+        } catch (error) {
+            console.error('   ❌ Gmail delete operation failed:', error.message);
+            throw error;
+        }
+    }
+
+    // NEW: Email composition and sending
+    async sendEmail(to, subject, body, options = {}) {
+        try {
+            await this.refreshTokenIfNeeded();
+            
+            console.log(`   📤 Sending Gmail email to: ${to}`);
+
+            // Create email message
+            const emailLines = [
+                `To: ${to}`,
+                `Subject: ${subject}`,
+                'Content-Type: text/html; charset=utf-8',
+                'MIME-Version: 1.0',
+                '',
+                body
+            ];
+
+            if (options.cc) {
+                emailLines.splice(2, 0, `Cc: ${options.cc}`);
+            }
+            if (options.bcc) {
+                emailLines.splice(options.cc ? 3 : 2, 0, `Bcc: ${options.bcc}`);
+            }
+            if (options.replyTo) {
+                emailLines.splice(-2, 0, `Reply-To: ${options.replyTo}`);
+            }
+
+            const email = emailLines.join('\n');
+            const encodedEmail = Buffer.from(email).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+            const result = await this.gmail.users.messages.send({
+                userId: 'me',
+                requestBody: {
+                    raw: encodedEmail,
+                    threadId: options.threadId // For replies
+                }
+            });
+
+            console.log(`   ✅ Gmail email sent successfully (ID: ${result.data.id})`);
+            
+            return {
+                success: true,
+                messageId: result.data.id,
+                threadId: result.data.threadId
+            };
+
+        } catch (error) {
+            console.error('   ❌ Gmail send email failed:', error.message);
+            throw error;
+        }
+    }
+
+    // NEW: Reply to email
+    async replyToEmail(originalMessageId, replyBody, includeOriginal = true) {
+        try {
+            await this.refreshTokenIfNeeded();
+            
+            // Get original message details
+            const originalMessage = await this.gmail.users.messages.get({
+                userId: 'me',
+                id: originalMessageId,
+                format: 'metadata',
+                metadataHeaders: ['From', 'Subject', 'Date', 'Message-ID', 'To']
+            });
+
+            const headers = originalMessage.data.payload.headers;
+            const from = headers.find(h => h.name === 'From')?.value || '';
+            const subject = headers.find(h => h.name === 'Subject')?.value || '';
+            const date = headers.find(h => h.name === 'Date')?.value || '';
+            const messageId = headers.find(h => h.name === 'Message-ID')?.value || '';
+
+            // Extract email from "Name <email@domain.com>" format
+            const emailMatch = from.match(/<(.+?)>/) || [null, from];
+            const replyTo = emailMatch[1] || from;
+
+            let replySubject = subject;
+            if (!replySubject.toLowerCase().startsWith('re:')) {
+                replySubject = `Re: ${replySubject}`;
+            }
+
+            let fullReplyBody = replyBody;
+            if (includeOriginal) {
+                fullReplyBody += `\n\n--- Original Message ---\n`;
+                fullReplyBody += `From: ${from}\n`;
+                fullReplyBody += `Date: ${date}\n`;
+                fullReplyBody += `Subject: ${subject}\n\n`;
+                
+                // Get original message body if needed
+                try {
+                    const fullMessage = await this.gmail.users.messages.get({
+                        userId: 'me',
+                        id: originalMessageId,
+                        format: 'full'
+                    });
+                    
+                    const originalBody = this.extractMessageBody(fullMessage.data);
+                    if (originalBody) {
+                        fullReplyBody += originalBody;
+                    }
+                } catch (bodyError) {
+                    console.warn('   ⚠️ Could not fetch original message body:', bodyError.message);
+                }
+            }
+
+            const result = await this.sendEmail(replyTo, replySubject, fullReplyBody, {
+                threadId: originalMessage.data.threadId
+            });
+
+            console.log(`   ✅ Gmail reply sent successfully`);
+            return result;
+
+        } catch (error) {
+            console.error('   ❌ Gmail reply failed:', error.message);
+            throw error;
+        }
+    }
+
+    // Helper method to extract message body
+    extractMessageBody(messageData) {
+        try {
+            const payload = messageData.payload;
+            
+            if (payload.body && payload.body.data) {
+                return Buffer.from(payload.body.data, 'base64').toString();
+            }
+            
+            if (payload.parts) {
+                for (const part of payload.parts) {
+                    if (part.mimeType === 'text/plain' && part.body && part.body.data) {
+                        return Buffer.from(part.body.data, 'base64').toString();
+                    }
+                }
+            }
+            
+            return '';
+        } catch (error) {
+            console.warn('Error extracting message body:', error.message);
+            return '';
+        }
+    }
+
+    // NEW: Get email thread
+    async getThread(threadId) {
+        try {
+            await this.refreshTokenIfNeeded();
+            
+            const thread = await this.gmail.users.threads.get({
+                userId: 'me',
+                id: threadId,
+                format: 'metadata',
+                metadataHeaders: ['From', 'Subject', 'Date', 'To']
+            });
+
+            return {
+                id: thread.data.id,
+                historyId: thread.data.historyId,
+                messages: thread.data.messages.map(msg => {
+                    const headers = msg.payload.headers;
+                    return {
+                        id: msg.id,
+                        from: headers.find(h => h.name === 'From')?.value || 'Unknown',
+                        to: headers.find(h => h.name === 'To')?.value || '',
+                        subject: headers.find(h => h.name === 'Subject')?.value || 'No Subject',
+                        date: headers.find(h => h.name === 'Date')?.value || new Date().toISOString(),
+                        snippet: msg.snippet || '',
+                        labelIds: msg.labelIds || []
+                    };
+                })
+            };
+        } catch (error) {
+            console.error('   ❌ Gmail get thread failed:', error.message);
+            throw error;
+        }
+    }
+}
+
+export { EnhancedGmailManager };
