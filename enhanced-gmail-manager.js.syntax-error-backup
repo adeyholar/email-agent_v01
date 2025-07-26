@@ -277,9 +277,9 @@ class EnhancedGmailManager {
                 const deletePromises = batch.map(async (messageId) => {
                     try {
                         await this.gmail.users.messages.trash({
-                            userId: 'me',
-                            id: messageId
-                        });
+                userId: 'me',
+                id: messageId
+            });
                         return { success: true, id: messageId };
                     } catch (error) {
                         console.warn(`   ⚠️ Failed to delete Gmail message ${messageId}:`, error.message);
@@ -500,6 +500,8 @@ class EnhancedGmailManager {
             throw error;
         }
     }
+}
+
 
     // ✅ WORKING: Batch email deletion using trash
     async batchDeleteEmails(messageIds) {
@@ -536,6 +538,5 @@ class EnhancedGmailManager {
             };
         }
     }
-}
 
 export { EnhancedGmailManager };

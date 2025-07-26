@@ -4,7 +4,6 @@
 // Created: January 25, 2025
 
 import express from 'express';
-import { EnhancedGmailManager } from './enhanced-gmail-manager.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { google } from 'googleapis';
@@ -341,7 +340,6 @@ const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
 // Initialize managers
 const yahooManager = new YahooEmailManager();
-const enhancedGmailManager = new EnhancedGmailManager();
 const aolManager = new AOLEmailManager();
 
 // Startup logging
@@ -706,167 +704,6 @@ app.get('/api/providers/aol', async (req, res) => {
 });
 
 // Start server
-
-// ✅ BATCH DELETE ENDPOINTS (FIXED)
-// =====================================
-
-// Batch delete selected emails
-app.post('/api/emails/batch/delete', async (req, res) => {
-    try {
-        console.log('🗑️ Batch delete request received');
-        
-        const { emailIds, provider = 'gmail' } = req.body;
-        
-        if (!emailIds || !Array.isArray(emailIds) || emailIds.length === 0) {
-            return res.status(400).json({
-                success: false,
-                error: 'No email IDs provided'
-            });
-        }
-        
-        console.log(`Processing ${emailIds.length} emails for deletion...`);
-        
-        let results = { success: [], failed: [] };
-        
-        if (provider === 'gmail' && enhancedGmailManager) {
-            // Use the FIXED enhanced Gmail manager
-            results = await enhancedGmailManager.batchDeleteEmails(emailIds);
-        } else {
-            // Fallback to individual deletion
-            for (const emailId of emailIds) {
-                try {
-                    await gmail.users.messages.trash({
-                        userId: 'me',
-                        id: emailId
-                    });
-                    results.success.push(emailId);
-                } catch (error) {
-                    console.error(`Failed to delete ${emailId}:`, error.message);
-                    results.failed.push({ id: emailId, error: error.message });
-                }
-            }
-        }
-        
-        console.log(`✅ Batch deletion completed: ${results.success.length} deleted, ${results.failed.length} failed`);
-        
-        res.json({
-            success: true,
-            deleted: results.success.length,
-            failed: results.failed.length,
-            method: 'moved_to_trash',
-            details: results
-        });
-        
-    } catch (error) {
-        console.error('❌ Batch delete error:', error.message);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// Batch delete by criteria (sender, subject, date, etc.)
-app.post('/api/emails/batch/delete-by-criteria', async (req, res) => {
-    try {
-        console.log('🗑️ Batch delete by criteria request received');
-        
-        const { 
-            criteria, 
-            maxEmails = 50,
-            provider = 'gmail' 
-        } = req.body;
-        
-        if (!criteria) {
-            return res.status(400).json({
-                success: false,
-                error: 'No criteria provided'
-            });
-        }
-        
-        console.log('Criteria:', criteria);
-        
-        // Build Gmail search query from criteria
-        let searchQuery = '';
-        
-        if (criteria.sender) {
-            searchQuery += `from:${criteria.sender} `;
-        }
-        if (criteria.subject) {
-            searchQuery += `subject:"${criteria.subject}" `;
-        }
-        if (criteria.olderThanDays) {
-            const date = new Date();
-            date.setDate(date.getDate() - criteria.olderThanDays);
-            const dateStr = `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
-            searchQuery += `before:${dateStr} `;
-        }
-        if (criteria.unreadOnly) {
-            searchQuery += 'is:unread ';
-        }
-        
-        console.log(`Search query: "${searchQuery.trim()}"`);
-        
-        // Search for emails matching criteria
-        const searchResults = await gmail.users.messages.list({
-            userId: 'me',
-            q: searchQuery.trim(),
-            maxResults: maxEmails
-        });
-        
-        if (!searchResults.data.messages || searchResults.data.messages.length === 0) {
-            return res.json({
-                success: true,
-                deleted: 0,
-                failed: 0,
-                message: 'No emails found matching criteria'
-            });
-        }
-        
-        const emailIds = searchResults.data.messages.map(msg => msg.id);
-        console.log(`Found ${emailIds.length} emails matching criteria`);
-        
-        // Delete the found emails
-        let results = { success: [], failed: [] };
-        
-        if (enhancedGmailManager) {
-            results = await enhancedGmailManager.batchDeleteEmails(emailIds);
-        } else {
-            // Fallback method
-            for (const emailId of emailIds) {
-                try {
-                    await gmail.users.messages.trash({
-                        userId: 'me',
-                        id: emailId
-                    });
-                    results.success.push(emailId);
-                } catch (error) {
-                    results.failed.push({ id: emailId, error: error.message });
-                }
-            }
-        }
-        
-        console.log(`✅ Criteria deletion completed: ${results.success.length} deleted, ${results.failed.length} failed`);
-        
-        res.json({
-            success: true,
-            deleted: results.success.length,
-            failed: results.failed.length,
-            criteria: criteria,
-            method: 'moved_to_trash',
-            details: results
-        });
-        
-    } catch (error) {
-        console.error('❌ Batch delete by criteria error:', error.message);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-
 app.listen(PORT, () => {
     console.log('✅ Enhanced Email API Server started successfully!');
     console.log(`📡 Server running on: http://localhost:${PORT}`);
